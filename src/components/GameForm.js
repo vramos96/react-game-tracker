@@ -1,30 +1,43 @@
 import { useState, useEffect } from "react"
 import { Grid, InputLabel, Select, MenuItem, Button, TextField, Typography } from "@material-ui/core"
 const GameForm = ({gameName, platforms}) => {
+    const apiKey = process.env.REACT_APP_API_KEY ?? ""
     const [canSubmitValues, setCanSubmitValues] = useState(false)
     const [platform, setPlatform] = useState("")
     const [platformUserIdentifier, setPlatformUserIdentifier] = useState("")
+    const [data, setData] = useState(null)
     useEffect( () => {
         console.log("do something on gameName change", gameName)
         setCanSubmitValues(false)
         setPlatform("")
         setPlatformUserIdentifier("")
+        setData(null)
     }, [gameName])
     function handleSubmitButton(){
         if(gameName === ""){
+            alert("game is null")
             return;
         }
-        if(platform !== ""){
+        if(platform === ""){
+            alert("platform is null")
             return;
         }
-        if(platformUserIdentifier !== ""){
+        if(platformUserIdentifier === ""){
+            alert("platformuser is null")
             return;
         }
+        /*
+        if(apiKey === ""){
+            alert("api key is null")
+            return
+        }
+        */
+        setData("aaa")
     }
     return (
         <>
             <Grid container spacing={2}>
-            <Grid item xs={12} spacing={2}>
+            <Grid item xs={12}>
                 <InputLabel required>Select a platform</InputLabel>
                 <Select
                 fullWidth
@@ -39,10 +52,11 @@ const GameForm = ({gameName, platforms}) => {
                 {platforms.map((platform) => <MenuItem key={platform.id} value={platform.value}>{platform.name}</MenuItem>)}
                 </Select>
             </Grid>
-            <Grid item xs={12} spacing={2}>
+            <Grid item xs={12}>
                 <InputLabel required>Enter your platform user identifier</InputLabel>
                 <TextField
                 fullWidth
+                value={platformUserIdentifier}
                 inputProps={{min: 0, style: { textAlign: 'center' }}}
                 onChange={(e) => {
                     var input = e.target.value
@@ -51,7 +65,7 @@ const GameForm = ({gameName, platforms}) => {
                 }}
                 />
             </Grid>
-            <Grid item xs={12} spacing={2}>
+            <Grid item xs={12}>
                 <Button disabled={!canSubmitValues} variant="contained" onClick={handleSubmitButton}>Submit</Button>
             </Grid>
             </Grid>
@@ -60,6 +74,8 @@ const GameForm = ({gameName, platforms}) => {
                 <Typography paragraph>Platform: {platform}</Typography>
                 <Typography paragraph>Platform user id: {platformUserIdentifier}</Typography>
                 <Typography paragraph>Can submit value: {canSubmitValues ? "true" : "false"}</Typography>
+                <Typography paragraph>API KEY: {apiKey ?? "api key is null"}</Typography>
+                <Typography paragraph>Data: {data ?? "data is null"}</Typography>
             </div>
         </>
     )
