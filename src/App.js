@@ -1,12 +1,15 @@
 import { BrowserRouter as Router, Route } from "react-router-dom"
+import Tracker from "./components/Tracker"
+import { Grid } from "@material-ui/core"
 function App() {
   return (
     <Router>
     <div className="container">
-      <h3>Game Tracker</h3>
       <Route path="/" exact render={(props) => (
         <>
-        This is the home directory
+        <Grid >
+          <Tracker />
+        </Grid>
         </>
       )} />
     </div>
