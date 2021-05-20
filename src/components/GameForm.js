@@ -6,6 +6,7 @@ const GameForm = ({gameName, platforms}) => {
     const [platform, setPlatform] = useState("")
     const [platformUserIdentifier, setPlatformUserIdentifier] = useState("")
     const [data, setData] = useState(null)
+    
     useEffect( () => {
         console.log("do something on gameName change", gameName)
         setCanSubmitValues(false)
@@ -13,6 +14,7 @@ const GameForm = ({gameName, platforms}) => {
         setPlatformUserIdentifier("")
         setData(null)
     }, [gameName])
+    
     function handleSubmitButton(){
         if(gameName === ""){
             alert("game is null")
@@ -43,6 +45,7 @@ const GameForm = ({gameName, platforms}) => {
                 fullWidth
                 name="platform"
                 value={platform}
+                defaultValue=""
                 onChange={(e) => {
                     var input = e.target.value
                     setCanSubmitValues( (platform !== "" && input !== "") ? true : false)
@@ -53,7 +56,7 @@ const GameForm = ({gameName, platforms}) => {
                 </Select>
             </Grid>
             <Grid item xs={12}>
-                <InputLabel required>Enter your platform user identifier</InputLabel>
+                <InputLabel required>Enter your platform user identifier (id)</InputLabel>
                 <TextField
                 fullWidth
                 value={platformUserIdentifier}
@@ -70,12 +73,26 @@ const GameForm = ({gameName, platforms}) => {
             </Grid>
             </Grid>
             <div className="container">
-                <Typography paragraph>Game: {gameName}</Typography>
-                <Typography paragraph>Platform: {platform}</Typography>
-                <Typography paragraph>Platform user id: {platformUserIdentifier}</Typography>
-                <Typography paragraph>Can submit value: {canSubmitValues ? "true" : "false"}</Typography>
-                <Typography paragraph>API KEY: {apiKey ?? "api key is null"}</Typography>
-                <Typography paragraph>Data: {data ?? "data is null"}</Typography>
+                { data === null ?  
+                <Typography paragraph>
+                    No data available for display
+                </Typography>
+                :
+                <Grid container style={{textAlign : "center"}}>
+                    <Grid item xs={12}>
+                        <Typography paragraph>
+                                Displaying data for: <br/>
+                                game {gameName}, <br/>
+                                platform {platform}, <br/>
+                                id {platformUserIdentifier}, <br/>
+                                key {apiKey !== "" ? {apiKey} : "api key is null"}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography paragraph>{data}</Typography>
+                    </Grid>
+                </Grid>
+                }
             </div>
         </>
     )
