@@ -1,40 +1,73 @@
 import { useState, useEffect } from "react"
 import { Grid, InputLabel, Select, MenuItem, Button, TextField, Typography } from "@material-ui/core"
+import axios from "axios"
 const GameForm = ({gameName, platforms}) => {
     const apiKey = process.env.REACT_APP_API_KEY ?? ""
     const [canSubmitValues, setCanSubmitValues] = useState(false)
     const [platform, setPlatform] = useState("")
     const [platformUserIdentifier, setPlatformUserIdentifier] = useState("")
     const [data, setData] = useState(null)
+    const [apiError, setApiError] = useState(false)
     
     useEffect( () => {
-        console.log("do something on gameName change", gameName)
         setCanSubmitValues(false)
         setPlatform("")
         setPlatformUserIdentifier("")
         setData(null)
+        setApiError(false)
     }, [gameName])
+
+    const handleApexLegendsRequest = () => {
+        const corsUrl = "https://cors-anywhere.herokuapp.com/"
+        const fetchUrl = `https://public-api.tracker.gg/v2/apex/standard/profile/${platform}/${platformUserIdentifier}`
+        axios.get(corsUrl + fetchUrl, 
+        {
+            headers: {
+                'TRN-Api-Key': "b1944d76-85a9-49c2-a69f-b999b4460d32"
+            }
+        })
+        .then(function (response) {
+            var data = response.data.data
+            console.log("success!!!")
+            console.log(JSON.stringify(data))
+            setApiError(false)
+            setData(JSON.stringify(data))
+        })
+        .catch(function (error) {
+            var data = error.response.data.message
+            console.log("data")
+            console.log(data)
+            setApiError(true)
+            setData(data)
+        })
+        .then(function () {
+            
+        })
+    }
     
     function handleSubmitButton(){
         if(gameName === ""){
-            alert("game is null")
+            alert("Please select a game to continue")
             return;
         }
         if(platform === ""){
-            alert("platform is null")
+            alert("Please select a platform to continue")
             return;
         }
         if(platformUserIdentifier === ""){
-            alert("platformuser is null")
+            alert("Please input a user identifier to continue")
             return;
         }
-        /*
         if(apiKey === ""){
-            alert("api key is null")
+            alert("API KEY is not properly set, please input a valid key as environment variable")
             return
         }
-        */
-        setData("aaa")
+        if(gameName === "Apex Legends"){
+            handleApexLegendsRequest()
+        }
+        if(gameName === "Overwatch"){
+            alert("handle overwatch func")
+        }
     }
     return (
         <>
@@ -73,25 +106,27 @@ const GameForm = ({gameName, platforms}) => {
             </Grid>
             </Grid>
             <div className="container">
-                { data === null ?  
-                <Typography paragraph>
-                    No data available for display
-                </Typography>
-                :
-                <Grid container style={{textAlign : "center"}}>
-                    <Grid item xs={12}>
-                        <Typography paragraph>
-                                Displaying data for: <br/>
-                                game {gameName}, <br/>
-                                platform {platform}, <br/>
-                                id {platformUserIdentifier}, <br/>
-                                key {apiKey !== "" ? {apiKey} : "api key is null"}
-                        </Typography>
+                { 
+                    data === null ?  
+                    <Typography paragraph>
+                        No data available for display
+                    </Typography>
+                    :
+                    <Grid container style={{textAlign : "center"}}>
+                        {
+                            apiError &&
+                            <Grid item xs={12}>
+                                <Typography paragraph>Error in API request, server responded with message:</Typography>
+                                <Typography paragraph>{data}</Typography>
+                            </Grid>
+                        }
+                        {
+                            !apiError &&
+                            <Grid item xs={12}>
+                                <Typography paragraph>{data}</Typography>
+                            </Grid>
+                        }
                     </Grid>
-                    <Grid item xs={12}>
-                        <Typography paragraph>{data}</Typography>
-                    </Grid>
-                </Grid>
                 }
             </div>
         </>
