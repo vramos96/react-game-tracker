@@ -23,25 +23,28 @@ const GameForm = ({gameName, platforms}) => {
         axios.get(corsUrl + fetchUrl, 
         {
             headers: {
-                'TRN-Api-Key': "b1944d76-85a9-49c2-a69f-b999b4460d32"
+                'TRN-Api-Key': process.env.REACT_APP_API_KEY
             }
         })
         .then(function (response) {
-            var data = response.data.data
             console.log("success!!!")
-            console.log(JSON.stringify(data))
+            var data = response.data.data
+            //console.log(JSON.stringify(data))
+            //console.log("segments")
+            //console.log(JSON.stringify(data.segments))
             setApiError(false)
-            setData(JSON.stringify(data))
+            setData(data ?? null)
         })
         .catch(function (error) {
-            var data = error.response.data.message
-            console.log("data")
-            console.log(data)
+            console.log("error!!!")
+            //console.log(error.response.data)
             setApiError(true)
-            setData(data)
+            setData(null)
         })
         .then(function () {
-            
+            setCanSubmitValues(false)
+            setPlatform("")
+            setPlatformUserIdentifier("")
         })
     }
     
@@ -122,9 +125,50 @@ const GameForm = ({gameName, platforms}) => {
                         }
                         {
                             !apiError &&
-                            <Grid item xs={12}>
-                                <Typography paragraph>{data}</Typography>
-                            </Grid>
+                            data.segments.map((segment, index) => {
+                                return segment.type === "overview" ? 
+                                <Grid key={index} item xs={12}>
+                                    <h2>
+                                        Player Overview for {data?.platformInfo?.platformUserIdentifier ?? "Undefined"}
+                                        ({data?.platformInfo?.platformSlug ?? "Undefined"})
+                                    </h2>
+                                    <Typography paragraph>
+                                    Lifetime level: {segment?.stats?.level?.displayValue ?? "Undefined"}
+                                    </Typography>
+                                    <Typography paragraph>
+                                    Lifetime kills: {segment?.stats?.kills?.displayValue ?? "Undefined"}
+                                    </Typography>
+                                    <Typography paragraph>
+                                    Lifetime damage: {segment?.stats?.damage?.displayValue ?? "Undefined"}
+                                    </Typography>
+                                    <Typography paragraph>
+                                    Lifetime revives: {segment?.stats?.revives?.displayValue ?? "Undefined"}
+                                    </Typography>
+                                    <Typography paragraph>
+                                    Lifetime rank score: {segment?.stats?.rankScore?.metadata?.rankName ?? "Undefined"}
+                                    </Typography>
+                                    <Typography paragraph>
+                                    <img src={segment?.stats?.rankScore?.metadata?.iconUrl ?? ""} alt="" width={50} height={50} />
+                                    </Typography>
+                                </Grid>
+                                : 
+                                segment.type === "legend" ? 
+                                <Grid key={index} item xs={12}>
+                                    <h3>Legend {segment?.metadata?.name ?? "Undefined"}</h3>
+                                    <Typography paragraph>
+                                        <img src={segment?.metadata?.imageUrl ?? ""} alt="" width={50} height={50}/>
+                                    </Typography>
+                                    <Typography paragraph>
+                                        Kills : {segment?.stats?.kills?.displayValue ?? "Undefined"} 
+                                    </Typography>
+                                </Grid>
+                                 :
+                                 <Grid key={index} item xs={12}>
+                                     <Typography paragraph>
+                                         Data is not overview or legend
+                                    </Typography>
+                                 </Grid>
+                            })
                         }
                     </Grid>
                 }
