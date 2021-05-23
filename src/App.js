@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Route } from "react-router-dom"
-import Tracker from "./components/Tracker"
 import { Grid } from "@material-ui/core"
+import Tracker from "./components/Tracker"
+import Footer from "./components/Footer"
 function App() {
   return (
     <Router>
@@ -9,6 +10,7 @@ function App() {
         <>
         <Grid >
           <Tracker />
+          <Footer />
         </Grid>
         </>
       )} />

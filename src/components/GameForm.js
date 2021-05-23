@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Grid, InputLabel, Select, MenuItem, Button, TextField, Typography } from "@material-ui/core"
 import axios from "axios"
+import ResponseContainer from "./ResponseContainer"
 const GameForm = ({gameName, platforms}) => {
     const apiKey = process.env.REACT_APP_API_KEY ?? ""
     const [canSubmitValues, setCanSubmitValues] = useState(false)
@@ -17,9 +18,19 @@ const GameForm = ({gameName, platforms}) => {
         setApiError(false)
     }, [gameName])
 
-    const handleApexLegendsRequest = () => {
+    const handleTrackerRequest = () => {
+        console.log("handle tracker request executed!")
+        if (! (gameName === "Apex Legends" || gameName === "Overwatch") ){ 
+            alert("Could not make API request since game it's not Apex Legends or Overwatch")
+            return 
+        }
+        //Game will be apex legends or overwatch from here on now
+        const encodedPlatformUserIdentifier = encodeURIComponent(platformUserIdentifier)
         const corsUrl = "https://cors-anywhere.herokuapp.com/"
-        const fetchUrl = `https://public-api.tracker.gg/v2/apex/standard/profile/${platform}/${platformUserIdentifier}`
+        const fetchUrl = (gameName === "Apex Legends") ? 
+        `https://public-api.tracker.gg/v2/apex/standard/profile/${platform}/${encodedPlatformUserIdentifier}` :
+        `https://public-api.tracker.gg/v2/overwatch/standard/profile/${platform}/${encodedPlatformUserIdentifier}`
+        //If env is development prepend cors-anywhere plugin
         axios.get(corsUrl + fetchUrl, 
         {
             headers: {
@@ -33,7 +44,7 @@ const GameForm = ({gameName, platforms}) => {
             //console.log("segments")
             //console.log(JSON.stringify(data.segments))
             setApiError(false)
-            setData(data ?? null)
+            setData(data)
         })
         .catch(function (error) {
             console.log("error!!!")
@@ -42,6 +53,7 @@ const GameForm = ({gameName, platforms}) => {
             setData(null)
         })
         .then(function () {
+            //Reset query values
             setCanSubmitValues(false)
             setPlatform("")
             setPlatformUserIdentifier("")
@@ -51,62 +63,60 @@ const GameForm = ({gameName, platforms}) => {
     function handleSubmitButton(){
         if(gameName === ""){
             alert("Please select a game to continue")
-            return;
+            return
         }
         if(platform === ""){
             alert("Please select a platform to continue")
-            return;
+            return
         }
         if(platformUserIdentifier === ""){
             alert("Please input a user identifier to continue")
-            return;
-        }
-        if(apiKey === ""){
-            alert("API KEY is not properly set, please input a valid key as environment variable")
             return
         }
-        if(gameName === "Apex Legends"){
-            handleApexLegendsRequest()
+        if(apiKey === ""){
+            alert("API KEY is not properly set, admin input a valid key as environment variable")
+            return
         }
-        if(gameName === "Overwatch"){
-            alert("handle overwatch func")
+        if(gameName === "Apex Legends" || gameName === "Overwatch"){
+            handleTrackerRequest()
+            return
         }
     }
     return (
         <>
             <Grid container spacing={2}>
-            <Grid item xs={12}>
-                <InputLabel required>Select a platform</InputLabel>
-                <Select
-                fullWidth
-                name="platform"
-                value={platform}
-                defaultValue=""
-                onChange={(e) => {
-                    var input = e.target.value
-                    setCanSubmitValues( (platform !== "" && input !== "") ? true : false)
-                    setPlatform(input)
-                }}
-                >
-                {platforms.map((platform) => <MenuItem key={platform.id} value={platform.value}>{platform.name}</MenuItem>)}
-                </Select>
-            </Grid>
-            <Grid item xs={12}>
-                <InputLabel required>Enter your platform user identifier (id)</InputLabel>
-                <TextField
-                fullWidth
-                value={platformUserIdentifier}
-                inputProps={{min: 0, style: { textAlign: 'center' }}}
-                onChange={(e) => {
-                    var input = e.target.value
-                    setCanSubmitValues( (platform !== "" && input !== "") ? true : false)
-                    setPlatformUserIdentifier(input)
-                }}
-                />
-            </Grid>
-            <Grid item xs={12}>
-                <Button disabled={!canSubmitValues} variant="contained" onClick={handleSubmitButton}>Submit</Button>
-            </Grid>
+                <Grid item xs={12}>
+                    <InputLabel required>Select a platform</InputLabel>
+                    <Select
+                    fullWidth
+                    name="platform"
+                    value={platform}
+                    defaultValue=""
+                    onChange={(e) => {
+                        var input = e.target.value
+                        setCanSubmitValues( (platform !== "" && input !== "") ? true : false)
+                        setPlatform(input)
+                    }}
+                    >
+                    {platforms.map((platform) => <MenuItem key={platform.id} value={platform.value}>{platform.name}</MenuItem>)}
+                    </Select>
+                </Grid>
+                <Grid item xs={12}>
+                    <InputLabel required>Enter your platform user identifier (id)</InputLabel>
+                    <TextField
+                    fullWidth
+                    value={platformUserIdentifier}
+                    inputProps={{min: 0, style: { textAlign: 'center' }}}
+                    onChange={(e) => {
+                        var input = e.target.value
+                        setCanSubmitValues( (platform !== "" && input !== "") ? true : false)
+                        setPlatformUserIdentifier(input)
+                    }}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <Button disabled={!canSubmitValues} variant="contained" onClick={handleSubmitButton}>Submit</Button>
+                </Grid>
             </Grid>
             <div className="container">
                 { 
@@ -125,50 +135,7 @@ const GameForm = ({gameName, platforms}) => {
                         }
                         {
                             !apiError &&
-                            data.segments.map((segment, index) => {
-                                return segment.type === "overview" ? 
-                                <Grid key={index} item xs={12}>
-                                    <h2>
-                                        Player Overview for {data?.platformInfo?.platformUserIdentifier ?? "Undefined"}
-                                        ({data?.platformInfo?.platformSlug ?? "Undefined"})
-                                    </h2>
-                                    <Typography paragraph>
-                                    Lifetime level: {segment?.stats?.level?.displayValue ?? "Undefined"}
-                                    </Typography>
-                                    <Typography paragraph>
-                                    Lifetime kills: {segment?.stats?.kills?.displayValue ?? "Undefined"}
-                                    </Typography>
-                                    <Typography paragraph>
-                                    Lifetime damage: {segment?.stats?.damage?.displayValue ?? "Undefined"}
-                                    </Typography>
-                                    <Typography paragraph>
-                                    Lifetime revives: {segment?.stats?.revives?.displayValue ?? "Undefined"}
-                                    </Typography>
-                                    <Typography paragraph>
-                                    Lifetime rank score: {segment?.stats?.rankScore?.metadata?.rankName ?? "Undefined"}
-                                    </Typography>
-                                    <Typography paragraph>
-                                    <img src={segment?.stats?.rankScore?.metadata?.iconUrl ?? ""} alt="" width={50} height={50} />
-                                    </Typography>
-                                </Grid>
-                                : 
-                                segment.type === "legend" ? 
-                                <Grid key={index} item xs={12}>
-                                    <h3>Legend {segment?.metadata?.name ?? "Undefined"}</h3>
-                                    <Typography paragraph>
-                                        <img src={segment?.metadata?.imageUrl ?? ""} alt="" width={50} height={50}/>
-                                    </Typography>
-                                    <Typography paragraph>
-                                        Kills : {segment?.stats?.kills?.displayValue ?? "Undefined"} 
-                                    </Typography>
-                                </Grid>
-                                 :
-                                 <Grid key={index} item xs={12}>
-                                     <Typography paragraph>
-                                         Data is not overview or legend
-                                    </Typography>
-                                 </Grid>
-                            })
+                            <ResponseContainer gameName={gameName} data={data} />
                         }
                     </Grid>
                 }
