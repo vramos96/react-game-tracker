@@ -9,7 +9,7 @@ const GameForm = ({gameName, platforms}) => {
     const [platformUserIdentifier, setPlatformUserIdentifier] = useState("")
     const [data, setData] = useState(null)
     const [apiError, setApiError] = useState(false)
-    const responseContainer = useMemo(() => <ResponseContainer gameName={gameName} data={data} />, [gameName, data])
+    const responseContainer = useMemo(() => (data !== null) ? <ResponseContainer gameName={gameName} data={data} /> : null, [gameName, data])
     //const responseContainer = <ResponseContainer gameName={gameName} data={data} />
     useEffect( () => {
         setCanSubmitValues(false)
@@ -20,7 +20,6 @@ const GameForm = ({gameName, platforms}) => {
     }, [gameName])
 
     const handleTrackerRequest = () => {
-        console.log("handle tracker request executed!")
         if (! (gameName === "Apex Legends" || gameName === "Overwatch") ){ 
             alert("Could not make API request since game it's not Apex Legends or Overwatch")
             return 
@@ -50,7 +49,7 @@ const GameForm = ({gameName, platforms}) => {
         .catch(function (error) {
             console.log("error!!!")
             var data = error?.response?.data?.errors[0]?.message ?? null
-            console.log(data)
+            //console.log(data)
             setApiError(true)
             setData(data)
         })

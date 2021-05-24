@@ -10,7 +10,6 @@ const ResponseContainer = ({gameName, data}) => {
             {
             (gameName === "Apex Legends") ?
             data.segments.map((segment, index) => {
-                console.log(segment.type)
                 return segment.type === "overview" ? 
                 <Grid key={index} item xs={12}>
                     <Typography paragraph>
@@ -53,7 +52,6 @@ const ResponseContainer = ({gameName, data}) => {
             :
             (gameName === "Overwatch") ?
             data.segments.map((segment, index) => {
-                console.log(segment.type)
                 return segment.type === "overview" ? 
                 <Grid key={index} item xs={12}>
                     <h2>
