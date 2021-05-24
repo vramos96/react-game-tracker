@@ -2,7 +2,7 @@ import { Grid, Typography } from "@material-ui/core"
 
 const ResponseContainer = ({gameName, data}) => {
     return (
-        <div>
+        <>
             <h2>
                 Player Overview for {data?.platformInfo?.platformUserIdentifier ?? "Undefined"}
                 ({data?.platformInfo?.platformSlug ?? "Undefined"})
@@ -108,7 +108,7 @@ const ResponseContainer = ({gameName, data}) => {
                 Game is not Apex Legends or Overwatch
             </Grid>
             }
-        </div>
+        </>
     )
 }
 

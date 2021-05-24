@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Grid, InputLabel, Select, MenuItem, Button, TextField, Typography } from "@material-ui/core"
 import axios from "axios"
 import ResponseContainer from "./ResponseContainer"
@@ -9,7 +9,8 @@ const GameForm = ({gameName, platforms}) => {
     const [platformUserIdentifier, setPlatformUserIdentifier] = useState("")
     const [data, setData] = useState(null)
     const [apiError, setApiError] = useState(false)
-    
+    const responseContainer = useMemo(() => <ResponseContainer gameName={gameName} data={data} />, [gameName, data])
+    //const responseContainer = <ResponseContainer gameName={gameName} data={data} />
     useEffect( () => {
         setCanSubmitValues(false)
         setPlatform("")
@@ -39,7 +40,7 @@ const GameForm = ({gameName, platforms}) => {
         })
         .then(function (response) {
             console.log("success!!!")
-            var data = response.data.data
+            var data = response.data.data ?? null
             //console.log(JSON.stringify(data))
             //console.log("segments")
             //console.log(JSON.stringify(data.segments))
@@ -48,9 +49,10 @@ const GameForm = ({gameName, platforms}) => {
         })
         .catch(function (error) {
             console.log("error!!!")
-            //console.log(error.response.data)
+            var data = error?.response?.data?.errors[0]?.message ?? null
+            console.log(data)
             setApiError(true)
-            setData(null)
+            setData(data)
         })
         .then(function () {
             //Reset query values
@@ -121,21 +123,23 @@ const GameForm = ({gameName, platforms}) => {
             <div className="container">
                 { 
                     data === null ?  
-                    <Typography paragraph>
+                    <h2>
                         No data available for display
-                    </Typography>
+                    </h2>
                     :
                     <Grid container style={{textAlign : "center"}}>
                         {
                             apiError &&
                             <Grid item xs={12}>
-                                <Typography paragraph>Error in API request, server responded with message:</Typography>
+                                <h2>
+                                    Error in API request, server responded with message:
+                                </h2>
                                 <Typography paragraph>{data}</Typography>
                             </Grid>
                         }
                         {
                             !apiError &&
-                            <ResponseContainer gameName={gameName} data={data} />
+                            responseContainer
                         }
                     </Grid>
                 }

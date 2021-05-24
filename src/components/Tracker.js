@@ -7,7 +7,7 @@ const Tracker = () => {
     const [game, setGame] = useState("")
     return (
         <>
-            <h1 style={{textAlign: 'center'}}>{appName}</h1>
+            <h1 style={{textAlign: 'center', color: 'red'}}>{appName}</h1>
             <Grid item xs={12}>
                 <InputLabel>Select a game</InputLabel>
                 <Select
